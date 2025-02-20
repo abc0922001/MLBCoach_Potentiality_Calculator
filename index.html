@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>分數正規化計算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 p-6">
+    <div class="max-w-2xl mx-auto bg-white shadow rounded p-6">
+      <h1 class="text-2xl font-bold mb-4">分數正規化計算器</h1>
+      <p class="mb-4 text-gray-700">
+        請依照表格輸入數值（B2～F2）與對應權重（J2～N2）。每個數值的上限為 7，
+        且「數值」那列的總和最大為 15。表格上方標題依序為「打　長　選　跑　守」。
+      </p>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">項目</th>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">打</th>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">長</th>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">選</th>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">跑</th>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">守</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr>
+              <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">數值</td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="b2" placeholder="數值" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="c2" placeholder="數值" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="d2" placeholder="數值" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="e2" placeholder="數值" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="f2" placeholder="數值" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">權重</td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="j2" value="7" placeholder="權重" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="k2" value="10" placeholder="權重" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="l2" value="5" placeholder="權重" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="m2" value="3" placeholder="權重" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <input type="number" id="n2" value="1" placeholder="權重" class="w-full border border-gray-300 rounded px-2 py-1 text-center" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button
+        type="button"
+        onclick="computeScore()"
+        class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+      >
+        計算正規化分數
+      </button>
+      <div id="result" class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded"></div>
+    </div>
+    <script>
+      function computeScore() {
+        // 取得 B2～F2 的數值
+        const values = [
+          Number(document.getElementById("b2").value),
+          Number(document.getElementById("c2").value),
+          Number(document.getElementById("d2").value),
+          Number(document.getElementById("e2").value),
+          Number(document.getElementById("f2").value)
+        ];
+        // 取得 J2～N2 的權重
+        const weights = [
+          Number(document.getElementById("j2").value),
+          Number(document.getElementById("k2").value),
+          Number(document.getElementById("l2").value),
+          Number(document.getElementById("m2").value),
+          Number(document.getElementById("n2").value)
+        ];
+
+        // 檢查是否有輸入空值或非數字
+        if (values.some(v => isNaN(v)) || weights.some(w => isNaN(w))) {
+          document.getElementById("result").innerText =
+            "請正確填入所有數值與權重。";
+          return;
+        }
+
+        // 計算 H2 = SUMPRODUCT(B2:F2, J2～N2)
+        let H2 = 0;
+        for (let i = 0; i < 5; i++) {
+          H2 += values[i] * weights[i];
+        }
+
+        // 取得權重排序後的前三大值
+        const sortedWeights = [...weights].sort((a, b) => b - a);
+        const denom =
+          7 * sortedWeights[0] + 7 * sortedWeights[1] + 1 * sortedWeights[2];
+
+        if (denom === 0) {
+          document.getElementById("result").innerText =
+            "權重輸入錯誤，分母為 0。";
+          return;
+        }
+
+        // 計算正規化分數
+        const score = (H2 / denom) * 100;
+        document.getElementById("result").innerText =
+          "正規化分數： " + score.toFixed(2) + " 分";
+      }
+    </script>
+  </body>
+</html>
